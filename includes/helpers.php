@@ -43,7 +43,6 @@ function validateEmployeePayload(array $data): array
     $birth = filter_var($data['birth'] ?? '', FILTER_VALIDATE_INT);
     $jobTitleId = filter_var($data['job_title_id'] ?? '', FILTER_VALIDATE_INT);
     $description = normalizeString($data['description'] ?? '');
-    $imgPath = normalizeString($data['img_path'] ?? '');
 
     if ($name === '' || mb_strlen($name) > 45) {
         $errors['name'] = 'ФИО обязательно, не длиннее 45 символов.';
@@ -61,10 +60,6 @@ function validateEmployeePayload(array $data): array
         $errors['description'] = 'Описание обязательно, не длиннее 255 символов.';
     }
 
-    if (mb_strlen($imgPath) > 45) {
-        $errors['img_path'] = 'Имя файла изображения должно быть не длиннее 45 символов.';
-    }
-
     return [
         'errors' => $errors,
         'data' => [
@@ -72,9 +67,36 @@ function validateEmployeePayload(array $data): array
             'birth' => $birth,
             'job_title_id' => $jobTitleId,
             'description' => $description,
-            'img_path' => $imgPath,
         ]
     ];
+}
+
+const EMPLOYEE_PHOTOS_DIR = __DIR__ . '/../catalogue_images';
+
+const EMPLOYEE_PHOTO_TYPES = [
+    'image/jpeg' => 'jpg',
+    'image/png' => 'png',
+    'image/webp' => 'webp',
+    'image/gif' => 'gif',
+];
+
+// Имя файла фото: <id сотрудника>_<время загрузки>.<расширение>, например 16_2026-03-19_00-13-33.jpg
+function employeePhotoFileName(int $employeeId, string $extension, ?int $uploadedAt = null): string
+{
+    return sprintf('%d_%s.%s', $employeeId, date('Y-m-d_H-i-s', $uploadedAt ?? time()), $extension);
+}
+
+function deleteEmployeePhoto(string $fileName): void
+{
+    $fileName = basename($fileName);
+    if ($fileName === '') {
+        return;
+    }
+
+    $path = EMPLOYEE_PHOTOS_DIR . '/' . $fileName;
+    if (is_file($path)) {
+        unlink($path);
+    }
 }
 
 function requireAdminAccess(): void

@@ -35,9 +35,8 @@ if (!findEmployeeById($connect, $id)) {
 }
 
 try {
-    $stmt = $connect->prepare('UPDATE employees SET img_path = ?, name = ?, birth = ?, job_title_id = ?, description = ? WHERE id = ?');
+    $stmt = $connect->prepare('UPDATE employees SET name = ?, birth = ?, job_title_id = ?, description = ? WHERE id = ?');
     $stmt->execute([
-        $payload['img_path'],
         $payload['name'],
         $payload['birth'],
         $payload['job_title_id'],

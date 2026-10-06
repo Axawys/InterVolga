@@ -95,9 +95,9 @@ body { background: url('images/background.jpg') no-repeat center center fixed; b
 
 <?php require __DIR__ . '/includes/footer.php'; ?>
 
-<div class="modal fade" id="addModal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Добавить</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="add_name" class="form-control mb-2" placeholder="ФИО"><input id="add_birth" type="number" class="form-control mb-2" placeholder="Год"><select id="add_job_title" class="form-control mb-2"></select><input id="add_img_path" class="form-control mb-2" placeholder="Имя файла изображения"><textarea id="add_desc" class="form-control" placeholder="Описание"></textarea></div><div class="modal-footer"><button class="btn btn-outline-light" onclick="createEmployee()">Сохранить</button></div></div></div></div>
+<div class="modal fade" id="addModal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Добавить</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="add_name" class="form-control mb-2" placeholder="ФИО"><input id="add_birth" type="number" class="form-control mb-2" placeholder="Год"><select id="add_job_title" class="form-control mb-2"></select><label for="add_photo" class="form-label mb-1">Фотография</label><input id="add_photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="form-control mb-2"><textarea id="add_desc" class="form-control" placeholder="Описание"></textarea></div><div class="modal-footer"><button class="btn btn-outline-light" onclick="createEmployee()">Сохранить</button></div></div></div></div>
 
-<div class="modal fade" id="editModal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Редактировать</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="edit_name" class="form-control mb-2"><input id="edit_birth" type="number" class="form-control mb-2"><select id="edit_job_title" class="form-control mb-2"></select><input id="edit_img_path" class="form-control mb-2" placeholder="Имя файла изображения"><textarea id="edit_desc" class="form-control"></textarea></div><div class="modal-footer"><button class="btn btn-outline-light" onclick="updateEmployee()">Сохранить</button></div></div></div></div>
+<div class="modal fade" id="editModal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Редактировать</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="edit_name" class="form-control mb-2"><input id="edit_birth" type="number" class="form-control mb-2"><select id="edit_job_title" class="form-control mb-2"></select><label for="edit_photo" class="form-label mb-1">Новая фотография (необязательно)</label><input id="edit_photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="form-control mb-2"><textarea id="edit_desc" class="form-control"></textarea></div><div class="modal-footer"><button class="btn btn-outline-light" onclick="updateEmployee()">Сохранить</button></div></div></div></div>
 
 <script src="js/bootstrap.bundle.min.js"></script>
 <script>
@@ -176,30 +176,48 @@ function openEdit(employee) {
     edit_birth.value = employee.birth;
     edit_job_title.value = employee.job_title_id;
     edit_desc.value = employee.description;
-    edit_img_path.value = employee.img_path || '';
+    edit_photo.value = '';
     new bootstrap.Modal(editModal).show();
 }
 
-async function createEmployee() {
+// Фото загружается отдельным запросом после сохранения сотрудника: имя файла строится из его id
+async function uploadPhoto(id, input, successText) {
+    const file = input.files[0];
+    input.value = '';
     try {
-        await requestJson('api/create', {
+        if (file) {
+            const form = new FormData();
+            form.append('id', id);
+            form.append('photo', file);
+            await requestJson('api/upload_photo', {method: 'POST', body: form});
+        }
+        showMessage(successText, 'success');
+    } catch (error) {
+        showMessage(successText + ' Но фото не загружено: ' + error.message);
+    }
+    loadEmployees();
+}
+
+async function createEmployee() {
+    let payload;
+    try {
+        payload = await requestJson('api/create', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 name: add_name.value,
                 birth: add_birth.value,
                 job_title_id: add_job_title.value,
-                description: add_desc.value,
-                img_path: add_img_path.value
+                description: add_desc.value
             })
         });
-        bootstrap.Modal.getInstance(addModal).hide();
-        [add_name, add_birth, add_img_path, add_desc].forEach(field => field.value = '');
-        showMessage('Сотрудник добавлен.', 'success');
-        loadEmployees();
     } catch (error) {
         showMessage(error.message);
+        return;
     }
+    bootstrap.Modal.getInstance(addModal).hide();
+    [add_name, add_birth, add_desc].forEach(field => field.value = '');
+    await uploadPhoto(payload.data.id, add_photo, 'Сотрудник добавлен.');
 }
 
 async function updateEmployee() {
@@ -212,16 +230,15 @@ async function updateEmployee() {
                 name: edit_name.value,
                 birth: edit_birth.value,
                 job_title_id: edit_job_title.value,
-                description: edit_desc.value,
-                img_path: edit_img_path.value
+                description: edit_desc.value
             })
         });
-        bootstrap.Modal.getInstance(editModal).hide();
-        showMessage('Сотрудник обновлён.', 'success');
-        loadEmployees();
     } catch (error) {
         showMessage(error.message);
+        return;
     }
+    bootstrap.Modal.getInstance(editModal).hide();
+    await uploadPhoto(currentId, edit_photo, 'Сотрудник обновлён.');
 }
 
 async function removeEmployee(id) {

@@ -15,13 +15,15 @@ if ($id < 1) {
     jsonResponse(['success' => false, 'error' => 'VALIDATION_ERROR', 'message' => 'Поле id обязательно и должно быть положительным числом.'], 422);
 }
 
-if (!findEmployeeById($connect, $id)) {
+$employee = findEmployeeById($connect, $id);
+if (!$employee) {
     jsonResponse(['success' => false, 'error' => 'NOT_FOUND', 'message' => 'Сотрудник не найден.'], 404);
 }
 
 try {
     $stmt = $connect->prepare('DELETE FROM employees WHERE id = ?');
     $stmt->execute([$id]);
+    deleteEmployeePhoto($employee['img_path']);
 
     jsonResponse(['success' => true, 'message' => 'Сотрудник удалён.', 'data' => ['id' => $id]]);
 } catch (Throwable $e) {

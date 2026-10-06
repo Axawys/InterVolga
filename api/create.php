@@ -28,7 +28,7 @@ if (!jobTitleExists($connect, $payload['job_title_id'])) {
 try {
     $stmt = $connect->prepare('INSERT INTO employees (img_path, name, birth, job_title_id, description) VALUES (?, ?, ?, ?, ?)');
     $stmt->execute([
-        $payload['img_path'],
+        '',
         $payload['name'],
         $payload['birth'],
         $payload['job_title_id'],
