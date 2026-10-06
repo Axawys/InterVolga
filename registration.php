@@ -59,34 +59,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-bs-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/bootstrap.min.css" rel="stylesheet">
-<link href="css/footer.css" rel="stylesheet">
-<title>Регистрация</title>
-<style>
-body {
-    background: url('images/background.jpg') no-repeat center center fixed;
-    background-size: cover;
-}
-.form-container {
-    backdrop-filter: blur(10px);
-    background-color: rgba(255,255,255,0.3);
-    padding: 30px;
-    border-radius: 10px;
-    max-width: 600px;
-    margin: 50px auto;
-}
-.is-invalid { border-color: #dc3545; }
-.text-danger { font-size: 0.85em; }
-</style>
 </head>
-<body>
-<main class="page-content">
-<div class="form-container">
-<h2>Регистрация</h2>
+<body class="d-flex flex-column min-vh-100">
+<main class="flex-grow-1">
+<div class="container my-5">
+<div class="row justify-content-center">
+<div class="col-md-8 col-lg-6">
+<div class="bg-body-tertiary rounded-3 shadow p-4">
+<h2 class="mb-4 text-center">Регистрация</h2>
 <?php foreach ($errors as $error): ?>
     <div class="alert alert-danger"><?= $error ?></div>
 <?php endforeach; ?>
@@ -100,9 +85,9 @@ body {
     <div class="form-group mt-3">
         <label>Дата рождения</label>
         <div class="d-flex gap-2">
-            <select id="day" class="form-control" required></select>
-            <select id="month" class="form-control" required></select>
-            <select id="year" class="form-control" required></select>
+            <select id="day" class="form-select" required></select>
+            <select id="month" class="form-select" required></select>
+            <select id="year" class="form-select" required></select>
         </div>
         <small id="dobError" class="text-danger d-none">Выберите корректную дату</small>
         <input type="hidden" id="dob" name="date">
@@ -116,7 +101,7 @@ body {
 
     <div class="form-group mt-3">
         <label>Пол</label>
-        <select class="form-control" name="sex" id="sex" required>
+        <select class="form-select" name="sex" id="sex" required>
             <option value="">Выберите пол</option>
             <option value="М">Мужской</option>
             <option value="Ж">Женский</option>
@@ -138,7 +123,7 @@ body {
 
     <div class="form-group mt-3">
         <label>Группа крови</label>
-        <select class="form-control" name="blood" id="blood" required>
+        <select class="form-select" name="blood" id="blood" required>
             <option value="">Выберите группу</option>
             <option value="I">I (0)</option>
             <option value="II">II (A)</option>
@@ -150,7 +135,7 @@ body {
 
     <div class="form-group mt-3">
         <label>Резус-фактор</label>
-        <select class="form-control" name="resus" id="resus" required>
+        <select class="form-select" name="resus" id="resus" required>
             <option value="">Выберите</option>
             <option value="+">Положительный (+)</option>
             <option value="-">Отрицательный (-)</option>
@@ -192,6 +177,9 @@ body {
     </script>
 </form>
 
+</div>
+</div>
+</div>
 </div>
 </main>
 

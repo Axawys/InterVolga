@@ -30,31 +30,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-bs-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/bootstrap.min.css" rel="stylesheet">
-<link href="css/footer.css" rel="stylesheet">
-<title>Авторизация</title>
-<style>
-body {
-    background: url('images/background.jpg') no-repeat center center fixed;
-    background-size: cover;
-}
-.form-container {
-    backdrop-filter: blur(10px);
-    background-color: rgba(255,255,255,0.3);
-    padding: 30px;
-    border-radius: 10px;
-    max-width: 400px;
-    margin: 80px auto;
-}
-</style>
 </head>
-<body>
-<main class="page-content">
-<div class="form-container">
+<body class="d-flex flex-column min-vh-100">
+<main class="flex-grow-1">
+<div class="container my-5">
+<div class="row justify-content-center">
+<div class="col-md-6 col-lg-4">
+<div class="bg-body-tertiary rounded-3 shadow p-4">
     <h2 class="mb-4 text-center">Авторизация</h2>
 
     <?php if (!empty($errorMessage)) : ?>
@@ -80,7 +67,7 @@ body {
 
     <p class="mt-3 text-center">
         Нет аккаунта? 
-        <a href="registration" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Регистрация</a>
+        <a href="registration" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Регистрация</a>
     </p>
 </div>
 
@@ -91,6 +78,9 @@ function goHome() {
     }
 }
 </script>
+</div>
+</div>
+</div>
 </main>
 
 <?php require __DIR__ . '/includes/footer.php'; ?>

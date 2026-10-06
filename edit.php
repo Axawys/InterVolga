@@ -33,28 +33,15 @@ $backupMessages = [
 $backupMessage = $backupMessages[$_GET['backup'] ?? ''] ?? null;
 ?>
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-bs-theme="dark">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Сотрудники</title>
-<link href="css/footer.css" rel="stylesheet">
 <link href="css/bootstrap.min.css" rel="stylesheet">
-<style>
-body { background: url('images/background.jpg') no-repeat center center fixed; background-size: cover; color: #fff; font-family: "Segoe UI", sans-serif; }
-.card { background: rgba(0,0,0,0.85); border-radius: 12px; height: 100%; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: transform 0.2s; }
-.card:hover { transform: translateY(-5px); }
-.employee-img { width: 33%; aspect-ratio: 1/1; object-fit: cover; margin: 0 auto 10px auto; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); }
-.card-body-fix { flex-grow: 1; text-align: center; padding: 0 5px; }
-.card-body-fix h5 { margin-bottom: 5px; font-weight: 600; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-.card-body-fix p { margin: 2px 0; font-size: 0.9rem; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.7); text-align: justify; }
-.btn-soft { border: 1px solid rgba(255,255,255,0.3); color: #fff; transition: background 0.2s; }
-.btn-soft:hover { background: rgba(255,255,255,0.1); }
-.modal-content { background: #222; color: #fff; }
-@media (max-width: 768px) { .employee-img { width: 50%; } }
-</style>
 </head>
-<body>
-<main class="page-content">
+<body class="d-flex flex-column min-vh-100">
+<main class="flex-grow-1">
 <div class="container mt-4">
 <div class="d-flex justify-content-between mb-3">
     <h2>Сотрудники</h2>
@@ -79,9 +66,9 @@ body { background: url('images/background.jpg') no-repeat center center fixed; b
 
 <?php require __DIR__ . '/includes/footer.php'; ?>
 
-<div class="modal fade" id="addModal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Добавить</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="add_name" class="form-control mb-2" placeholder="ФИО"><input id="add_birth" type="number" class="form-control mb-2" placeholder="Год"><select id="add_job_title" class="form-control mb-2"></select><label for="add_photo" class="form-label mb-1">Фотография</label><input id="add_photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="form-control mb-2"><textarea id="add_desc" class="form-control" placeholder="Описание"></textarea></div><div class="modal-footer"><button class="btn btn-outline-light" onclick="createEmployee()">Сохранить</button></div></div></div></div>
+<div class="modal fade" id="addModal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Добавить</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="add_name" class="form-control mb-2" placeholder="ФИО"><input id="add_birth" type="number" class="form-control mb-2" placeholder="Год"><select id="add_job_title" class="form-select mb-2"></select><label for="add_photo" class="form-label mb-1">Фотография</label><input id="add_photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="form-control mb-2"><textarea id="add_desc" class="form-control" placeholder="Описание"></textarea></div><div class="modal-footer"><button class="btn btn-outline-light" onclick="createEmployee()">Сохранить</button></div></div></div></div>
 
-<div class="modal fade" id="editModal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Редактировать</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="edit_name" class="form-control mb-2"><input id="edit_birth" type="number" class="form-control mb-2"><select id="edit_job_title" class="form-control mb-2"></select><label for="edit_photo" class="form-label mb-1">Новая фотография (необязательно)</label><input id="edit_photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="form-control mb-2"><textarea id="edit_desc" class="form-control"></textarea></div><div class="modal-footer"><button class="btn btn-outline-light" onclick="updateEmployee()">Сохранить</button></div></div></div></div>
+<div class="modal fade" id="editModal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Редактировать</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="edit_name" class="form-control mb-2"><input id="edit_birth" type="number" class="form-control mb-2"><select id="edit_job_title" class="form-select mb-2"></select><label for="edit_photo" class="form-label mb-1">Новая фотография (необязательно)</label><input id="edit_photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="form-control mb-2"><textarea id="edit_desc" class="form-control"></textarea></div><div class="modal-footer"><button class="btn btn-outline-light" onclick="updateEmployee()">Сохранить</button></div></div></div></div>
 
 <script src="js/bootstrap.bundle.min.js"></script>
 <script>
@@ -122,10 +109,10 @@ async function loadJobTitles() {
 }
 
 function cardImage(path) {
-    if (!path) {
-        return '<div class="employee-img mb-2 d-flex align-items-center justify-content-center bg-secondary">Нет фото</div>';
-    }
-    return `<img src="catalogue_images/${encodeURIComponent(path)}" class="employee-img mb-2" alt="Фото">`;
+    const content = path
+        ? `<img src="catalogue_images/${encodeURIComponent(path)}" class="rounded border object-fit-cover" alt="Фото">`
+        : '<div class="rounded bg-secondary d-flex align-items-center justify-content-center small">Нет фото</div>';
+    return `<div class="col-6 col-md-4 mx-auto mb-2"><div class="ratio ratio-1x1">${content}</div></div>`;
 }
 
 async function loadEmployees() {
@@ -135,17 +122,17 @@ async function loadEmployees() {
         const card = document.createElement('div');
         card.className = 'col-md-4';
         card.innerHTML = `
-        <div class="card p-3">
+        <div class="card h-100 p-3 shadow">
             ${cardImage(e.img_path)}
-            <div class="card-body-fix">
-                <h5>${escapeHtml(e.name)}</h5>
-                <p>${escapeHtml(e.job_title_name || 'Не указана')}</p>
-                <p>${escapeHtml(e.birth)}</p>
-                <p>${escapeHtml(e.description)}</p>
+            <div class="flex-grow-1 text-center px-1 small">
+                <h5 class="fw-semibold mb-1">${escapeHtml(e.name)}</h5>
+                <p class="mb-1">${escapeHtml(e.job_title_name || 'Не указана')}</p>
+                <p class="mb-1">${escapeHtml(e.birth)}</p>
+                <p class="mb-2">${escapeHtml(e.description)}</p>
             </div>
             <div class="d-flex gap-2">
-                <button class="btn btn-soft w-50 btn-edit">Редактировать</button>
-                <button class="btn btn-soft w-50 btn-delete">Удалить</button>
+                <button class="btn btn-outline-light w-50 btn-edit">Редактировать</button>
+                <button class="btn btn-outline-light w-50 btn-delete">Удалить</button>
             </div>
         </div>`;
         card.querySelector('.btn-edit').addEventListener('click', () => openEdit(e));
