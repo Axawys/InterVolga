@@ -21,26 +21,10 @@ if (isset($_POST['password_check'])) {
     }
 }
 
-if (empty($_SESSION['edit_page_access'])) :
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<link href="css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="d-flex align-items-center justify-content-center vh-100 bg-dark text-white">
-
-<form method="POST" class="p-4 bg-black rounded">
-    <h4>Доступ</h4>
-    <input type="password" name="password" class="form-control mb-2" placeholder="Пароль" required>
-    <button name="password_check" class="btn btn-outline-light w-100">Войти</button>
-    <div class="text-danger mt-2"><?= htmlspecialchars($password_error) ?></div>
-</form>
-
-</body>
-</html>
-<?php exit; endif;
+if (empty($_SESSION['edit_page_access'])) {
+    require __DIR__ . '/includes/admin_login.php';
+    exit;
+}
 
 $backupMessages = [
     'ok' => ['success', 'Бэкап успешно загружен.'],
@@ -85,7 +69,7 @@ body { background: url('images/background.jpg') no-repeat center center fixed; b
     <input type="file" name="sql_file" accept=".sql" class="form-control" required>
     <button class="btn btn-outline-light text-nowrap" onclick="return confirm('Текущие данные будут заменены данными из бэкапа. Продолжить?')">Загрузить бэкап</button>
 </form>
-<?php if ($backupMessage): ?>
+<?php if ($backupMessage) : ?>
 <div class="alert alert-<?= $backupMessage[0] ?>"><?= $backupMessage[1] ?></div>
 <?php endif; ?>
 <div id="apiMessage" class="mb-3"></div>
