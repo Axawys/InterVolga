@@ -16,44 +16,70 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = $_POST['password'];
         $confirmPassword = $_POST['confirmPassword'];
 
-        if(empty($FIO)) $errors[]="ФИО обязательно.";
-        if(empty($date)) $errors[]="Дата рождения обязательна.";
-        if(empty($address)) $errors[]="Адрес обязателен.";
-        if(!in_array($sex,['М','Ж'])) $errors[]="Пол некорректен.";
-        if(empty($interes)) $errors[]="Интересы обязательны.";
-        if(!empty($vk) && !filter_var($vk,FILTER_VALIDATE_URL)) $errors[]="Некорректная ссылка VK.";
-        if(empty($blood)) $errors[]="Группа крови обязательна.";
-        if(!in_array($resus,['+','-'])) $errors[]="Резус-фактор некорректен.";
-        if(!filter_var($email,FILTER_VALIDATE_EMAIL)) $errors[]="Некорректный email.";
-        
+        if(empty($FIO)) {
+            $errors[] = "ФИО обязательно.";
+        }
+        if(empty($date)) {
+            $errors[] = "Дата рождения обязательна.";
+        }
+        if(empty($address)) {
+            $errors[] = "Адрес обязателен.";
+        }
+        if(!in_array($sex, ['М','Ж'])) {
+            $errors[] = "Пол некорректен.";
+        }
+        if(empty($interes)) {
+            $errors[] = "Интересы обязательны.";
+        }
+        if(!empty($vk) && !filter_var($vk, FILTER_VALIDATE_URL)) {
+            $errors[] = "Некорректная ссылка VK.";
+        }
+        if(empty($blood)) {
+            $errors[] = "Группа крови обязательна.";
+        }
+        if(!in_array($resus, ['+','-'])) {
+            $errors[] = "Резус-фактор некорректен.";
+        }
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Некорректный email.";
+        }
+
         // Проверка на существующий email
         $checkEmail = db()->prepare("SELECT id FROM users WHERE email = :email");
         $checkEmail->execute([':email' => $email]);
         if($checkEmail->rowCount() > 0) {
-            $errors[]="Эта почта уже используется";
+            $errors[] = "Эта почта уже используется";
         }
-        
-        if(strlen($password)<=6) $errors[]="Пароль минимум 7 символов.";
-        if($password!==$confirmPassword) $errors[]="Пароли не совпадают.";
+
+        if(strlen($password) <= 6) {
+            $errors[] = "Пароль минимум 7 символов.";
+        }
+        if($password !== $confirmPassword) {
+            $errors[] = "Пароли не совпадают.";
+        }
 
         if(empty($errors)){
-            $hashedPassword=password_hash($password,PASSWORD_DEFAULT);
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-            $sql="INSERT INTO users (FIO,date,address,sex,interes,vk,blood,resus,email,password)
+            $sql = "INSERT INTO users (FIO,date,address,sex,interes,vk,blood,resus,email,password)
             VALUES (:FIO,:date,:address,:sex,:interes,:vk,:blood,:resus,:email,:password)";
-            $stmt=db()->prepare($sql);
-            $params=[
-                ':FIO'=>$FIO,':date'=>$date,':address'=>$address,':sex'=>$sex,
-                ':interes'=>$interes,':vk'=>$vk,':blood'=>$blood,':resus'=>$resus,
-                ':email'=>$email,':password'=>$hashedPassword
+            $stmt = db()->prepare($sql);
+            $params = [
+                ':FIO' => $FIO,':date' => $date,':address' => $address,':sex' => $sex,
+                ':interes' => $interes,':vk' => $vk,':blood' => $blood,':resus' => $resus,
+                ':email' => $email,':password' => $hashedPassword
             ];
-            foreach($params as $k=>$v) $stmt->bindParam($k,$params[$k]);
+            foreach($params as $k => $v) {
+                $stmt->bindParam($k, $params[$k]);
+            }
             if($stmt->execute()) {
                 header("Location: autorisation");
                 exit;
             }
         }
-    } catch(PDOException $e){ $errors[] = "Ошибка базы данных, попробуйте позже."; }
+    } catch(PDOException $e){
+        $errors[] = "Ошибка базы данных, попробуйте позже.";
+    }
 }
 ?>
 

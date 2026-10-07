@@ -11,7 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $id = (int)($_POST['id'] ?? 0);
 if ($id < 1) {
-    jsonResponse(['success' => false, 'error' => 'VALIDATION_ERROR', 'message' => 'Поле id обязательно и должно быть положительным числом.'], 422);
+    jsonResponse([
+        'success' => false,
+        'error' => 'VALIDATION_ERROR',
+        'message' => 'Поле id обязательно и должно быть положительным числом.',
+    ], 422);
 }
 
 $employee = findEmployeeById(db(), $id);
@@ -32,7 +36,11 @@ if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
 $mimeType = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
 $extension = EMPLOYEE_PHOTO_TYPES[$mimeType] ?? null;
 if ($extension === null) {
-    jsonResponse(['success' => false, 'error' => 'INVALID_FILE', 'message' => 'Допустимые форматы: JPEG, PNG, WebP, GIF.'], 422);
+    jsonResponse([
+        'success' => false,
+        'error' => 'INVALID_FILE',
+        'message' => 'Допустимые форматы: JPEG, PNG, WebP, GIF.',
+    ], 422);
 }
 
 $fileName = employeePhotoFileName($id, $extension);
@@ -52,4 +60,8 @@ if ($employee['img_path'] !== $fileName) {
     deleteEmployeePhoto($employee['img_path']);
 }
 
-jsonResponse(['success' => true, 'message' => 'Фотография загружена.', 'data' => ['id' => $id, 'img_path' => $fileName]]);
+jsonResponse([
+    'success' => true,
+    'message' => 'Фотография загружена.',
+    'data' => ['id' => $id, 'img_path' => $fileName],
+]);

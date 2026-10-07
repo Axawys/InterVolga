@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../db.php';
-
 function getAllJobTitles(PDO $connect): array
 {
     $stmt = $connect->query('SELECT id, name FROM job_title ORDER BY id');

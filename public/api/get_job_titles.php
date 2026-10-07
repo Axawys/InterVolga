@@ -14,5 +14,9 @@ try {
         'data' => getAllJobTitles(db())
     ]);
 } catch (Throwable $e) {
-    jsonResponse(['success' => false, 'error' => 'SERVER_ERROR', 'message' => 'Не удалось получить список должностей.'], 500);
+    jsonResponse([
+        'success' => false,
+        'error' => 'SERVER_ERROR',
+        'message' => 'Не удалось получить список должностей.',
+    ], 500);
 }

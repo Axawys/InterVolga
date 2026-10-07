@@ -55,7 +55,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="mb-3">
             <label for="password" class="form-label">Пароль</label>
-            <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль" required>
+            <input type="password" class="form-control" id="password" name="password"
+                   placeholder="Введите пароль" required>
         </div>
 
         <div class="d-flex justify-content-between">
@@ -66,7 +67,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <p class="mt-3 text-center">
         Нет аккаунта? 
-        <a href="registration" class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Регистрация</a>
+        <a href="registration"
+           class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Регистрация</a>
     </p>
 </div>
 

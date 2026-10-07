@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/employee_repository.php';
 require_once __DIR__ . '/../logic.php';
 session_start();
 
@@ -26,11 +29,13 @@ $isLoggedIn = isset($_SESSION['user_id']);
     <div class="bg-body-tertiary rounded-3 shadow p-4">
         <h2 class="text-center mb-3">Архитектурное бюро</h2>
         <p>
-            Добро пожаловать на сайт нашего архитектурного бюро! Мы занимаемся проектированием жилых и коммерческих объектов,
-            а также реализуем уникальные дизайнерские решения для интерьеров и экстерьеров.
+            Добро пожаловать на сайт нашего архитектурного бюро! Мы занимаемся проектированием
+            жилых и коммерческих объектов, а также реализуем уникальные дизайнерские решения
+            для интерьеров и экстерьеров.
         </p>
         <p>
-            Наша команда состоит из опытных архитекторов, инженеров и дизайнеров, готовых воплотить ваши идеи в реальность.
+            Наша команда состоит из опытных архитекторов, инженеров и дизайнеров,
+            готовых воплотить ваши идеи в реальность.
         </p>
 
         <h4 class="text-center">Главный офис</h4>
@@ -56,25 +61,30 @@ $isLoggedIn = isset($_SESSION['user_id']);
         <form method="get" action="./" class="text-start mt-4">
             <div class="mb-3">
                 <label class="form-label">По году рождения:</label>
-                <input type="text" class="form-control" name="birth" placeholder="Введите год рождения" value="<?= htmlspecialchars($filters['birth']) ?>">
+                <input type="text" class="form-control" name="birth" placeholder="Введите год рождения"
+                       value="<?= htmlspecialchars($filters['birth']) ?>">
             </div>
 
             <div class="mb-3">
                 <label class="form-label">По ФИО:</label>
-                <input type="text" class="form-control" name="name" placeholder="Введите ФИО" value="<?= htmlspecialchars($filters['name']) ?>">
+                <input type="text" class="form-control" name="name" placeholder="Введите ФИО"
+                       value="<?= htmlspecialchars($filters['name']) ?>">
             </div>
 
             <div class="mb-3">
                 <label class="form-label">По личной характеристике:</label>
-                <input type="text" class="form-control" name="description" placeholder="Введите личную характеристику" value="<?= htmlspecialchars($filters['description']) ?>">
+                <input type="text" class="form-control" name="description"
+                       placeholder="Введите личную характеристику"
+                       value="<?= htmlspecialchars($filters['description']) ?>">
             </div>
 
             <div class="mb-3">
                 <label class="form-label">По должности:</label>
                 <select name="job_title_id" class="form-select">
-                    <option value="" <?= ($filters['job_title_id'] == '' ? 'selected' : '') ?>>Все</option>
+                    <option value="" <?= $filters['job_title_id'] === '' ? 'selected' : '' ?>>Все</option>
                     <?php foreach ($job_titles as $job): ?>
-                        <option value="<?= $job['id'] ?>" <?= ($filters['job_title_id'] == $job['id'] ? 'selected' : '') ?>>
+                        <?php $selected = $filters['job_title_id'] === (string)$job['id'] ? 'selected' : ''; ?>
+                        <option value="<?= (int)$job['id'] ?>" <?= $selected ?>>
                             <?= htmlspecialchars($job['name']) ?>
                         </option>
                     <?php endforeach; ?>
@@ -111,11 +121,18 @@ $isLoggedIn = isset($_SESSION['user_id']);
                     <?php foreach ($employees as $employee): ?>
                         <tr>
                             <td>
-                                                                    <?php if (!empty($employee['img_path']) && file_exists(__DIR__ . '/catalogue_images/' . $employee['img_path'])): ?>
-                                        <img src="catalogue_images/<?= htmlspecialchars($employee['img_path']) ?>" alt="Фото" width="100" height="100" class="rounded object-fit-cover">
-                                    <?php else: ?>
-                                        <span class="d-inline-block bg-secondary rounded px-2 py-4 small">Нет фото</span>
-                                    <?php endif; ?>
+                                <?php
+                                $photo = $employee['img_path'] ?? '';
+                                $hasPhoto = $photo !== '' && file_exists(__DIR__ . '/catalogue_images/' . $photo);
+                                ?>
+                                <?php if ($hasPhoto): ?>
+                                    <img src="catalogue_images/<?= htmlspecialchars($photo) ?>" alt="Фото"
+                                         width="100" height="100" class="rounded object-fit-cover">
+                                <?php else: ?>
+                                    <span class="d-inline-block bg-secondary rounded px-2 py-4 small">
+                                        Нет фото
+                                    </span>
+                                <?php endif; ?>
                             </td>
                             <td><?= htmlspecialchars($employee['name']) ?></td>
                             <td><?= htmlspecialchars($employee['birth']) ?></td>

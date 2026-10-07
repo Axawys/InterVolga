@@ -12,7 +12,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $data = getJsonInput();
 $id = isset($data['id']) ? (int)$data['id'] : 0;
 if ($id < 1) {
-    jsonResponse(['success' => false, 'error' => 'VALIDATION_ERROR', 'message' => 'Поле id обязательно и должно быть положительным числом.'], 422);
+    jsonResponse([
+        'success' => false,
+        'error' => 'VALIDATION_ERROR',
+        'message' => 'Поле id обязательно и должно быть положительным числом.',
+    ], 422);
 }
 
 $validation = validateEmployeePayload($data);
@@ -27,7 +31,11 @@ if ($validation['errors']) {
 
 $payload = $validation['data'];
 if (!jobTitleExists(db(), $payload['job_title_id'])) {
-    jsonResponse(['success' => false, 'error' => 'INVALID_JOB_TITLE', 'message' => 'Указанная должность не найдена.'], 422);
+    jsonResponse([
+        'success' => false,
+        'error' => 'INVALID_JOB_TITLE',
+        'message' => 'Указанная должность не найдена.',
+    ], 422);
 }
 
 if (!findEmployeeById(db(), $id)) {

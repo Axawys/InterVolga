@@ -1,9 +1,14 @@
 <?php
+
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../includes/helpers.php';
 requireAdminAccess();
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['sql_file']) || $_FILES['sql_file']['error'] !== UPLOAD_ERR_OK) {
+if (
+    $_SERVER['REQUEST_METHOD'] !== 'POST'
+    || !isset($_FILES['sql_file'])
+    || $_FILES['sql_file']['error'] !== UPLOAD_ERR_OK
+) {
     header('Location: edit?backup=error');
     exit;
 }

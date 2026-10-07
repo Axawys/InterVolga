@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<ruleset name="InterVolga">
+    <description>PSR12, но шаблоны страниц в public/ могут писать "if (...): ?>" без пробела перед двоеточием</description>
+
+    <file>public</file>
+    <file>includes</file>
+    <file>db.php</file>
+    <file>logic.php</file>
+    <arg name="extensions" value="php"/>
+
+    <rule ref="PSR12"/>
+
+    <!-- Страницы public/*.php (не api/) - HTML-шаблоны с альтернативным синтаксисом -->
+    <rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseParenthesis">
+        <exclude-pattern>public/[^/]+\.php$</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword">
+        <exclude-pattern>public/[^/]+\.php$</exclude-pattern>
+    </rule>
+</ruleset>

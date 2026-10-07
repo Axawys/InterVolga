@@ -22,11 +22,17 @@ if ($validation['errors']) {
 
 $payload = $validation['data'];
 if (!jobTitleExists(db(), $payload['job_title_id'])) {
-    jsonResponse(['success' => false, 'error' => 'INVALID_JOB_TITLE', 'message' => 'Указанная должность не найдена.'], 422);
+    jsonResponse([
+        'success' => false,
+        'error' => 'INVALID_JOB_TITLE',
+        'message' => 'Указанная должность не найдена.',
+    ], 422);
 }
 
 try {
-    $stmt = db()->prepare('INSERT INTO employees (img_path, name, birth, job_title_id, description) VALUES (?, ?, ?, ?, ?)');
+    $stmt = db()->prepare(
+        'INSERT INTO employees (img_path, name, birth, job_title_id, description) VALUES (?, ?, ?, ?, ?)'
+    );
     $stmt->execute([
         '',
         $payload['name'],
