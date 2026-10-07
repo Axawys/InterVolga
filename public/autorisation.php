@@ -2,7 +2,7 @@
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    require_once 'db.php';
+    require_once __DIR__ . '/../db.php';
     try {
         $email = htmlspecialchars($_POST['email']);
         $password = $_POST['password'];
@@ -83,6 +83,6 @@ function goHome() {
 </div>
 </main>
 
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php require __DIR__ . '/../includes/footer.php'; ?>
 </body>
 </html>

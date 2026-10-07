@@ -71,7 +71,7 @@ function validateEmployeePayload(array $data): array
     ];
 }
 
-const EMPLOYEE_PHOTOS_DIR = __DIR__ . '/../catalogue_images';
+const EMPLOYEE_PHOTOS_DIR = __DIR__ . '/../public/catalogue_images';
 
 const EMPLOYEE_PHOTO_TYPES = [
     'image/jpeg' => 'jpg',

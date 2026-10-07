@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-require_once 'includes/employee_repository.php';
-require_once 'includes/helpers.php';
+require_once __DIR__ . '/includes/employee_repository.php';
+require_once __DIR__ . '/includes/helpers.php';
 
 $filters = [
     'birth' => normalizeString($_GET['birth'] ?? ''),

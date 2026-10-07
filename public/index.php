@@ -1,5 +1,5 @@
 <?php
-require_once "logic.php";
+require_once __DIR__ . '/../logic.php';
 session_start();
 
 $isLoggedIn = isset($_SESSION['user_id']);
@@ -110,7 +110,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                     <?php foreach ($employees as $employee): ?>
                         <tr>
                             <td>
-                                                                    <?php if (!empty($employee['img_path']) && file_exists('catalogue_images/' . $employee['img_path'])): ?>
+                                                                    <?php if (!empty($employee['img_path']) && file_exists(__DIR__ . '/catalogue_images/' . $employee['img_path'])): ?>
                                         <img src="catalogue_images/<?= htmlspecialchars($employee['img_path']) ?>" alt="Фото" width="100" height="100" class="rounded object-fit-cover">
                                     <?php else: ?>
                                         <span class="d-inline-block bg-secondary rounded px-2 py-4 small">Нет фото</span>
@@ -134,7 +134,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 </div>
 </main>
 
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php require __DIR__ . '/../includes/footer.php'; ?>
 
 </body>
 </html>

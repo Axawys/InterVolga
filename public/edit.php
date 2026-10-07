@@ -22,7 +22,7 @@ if (isset($_POST['password_check'])) {
 }
 
 if (empty($_SESSION['edit_page_access'])) {
-    require __DIR__ . '/includes/admin_login.php';
+    require __DIR__ . '/../includes/admin_login.php';
     exit;
 }
 
@@ -64,7 +64,7 @@ $backupMessage = $backupMessages[$_GET['backup'] ?? ''] ?? null;
 </div>
 </main>
 
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php require __DIR__ . '/../includes/footer.php'; ?>
 
 <div class="modal fade" id="addModal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Добавить</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="add_name" class="form-control mb-2" placeholder="ФИО"><input id="add_birth" type="number" class="form-control mb-2" placeholder="Год"><select id="add_job_title" class="form-select mb-2"></select><label for="add_photo" class="form-label mb-1">Фотография</label><input id="add_photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="form-control mb-2"><textarea id="add_desc" class="form-control" placeholder="Описание"></textarea></div><div class="modal-footer"><button class="btn btn-outline-light" onclick="createEmployee()">Сохранить</button></div></div></div></div>
 

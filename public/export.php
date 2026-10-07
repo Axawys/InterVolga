@@ -1,6 +1,6 @@
 <?php
-require_once 'db.php';
-require_once 'includes/helpers.php';
+require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../includes/helpers.php';
 requireAdminAccess();
 
 $sqlDump = "-- Бэкап базы данных от " . date('d.m.Y H:i') . "\n\n";

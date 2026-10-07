@@ -2,7 +2,7 @@
 $errors = [];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    require_once 'db.php';
+    require_once __DIR__ . '/../db.php';
     try {
         $FIO = htmlspecialchars($_POST['FIO']);
         $date = htmlspecialchars($_POST['date']);
@@ -183,7 +183,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 </main>
 
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php require __DIR__ . '/../includes/footer.php'; ?>
 
 <script>
 const day = document.getElementById('day');
