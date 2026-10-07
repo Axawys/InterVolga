@@ -21,12 +21,12 @@ if ($validation['errors']) {
 }
 
 $payload = $validation['data'];
-if (!jobTitleExists($connect, $payload['job_title_id'])) {
+if (!jobTitleExists(db(), $payload['job_title_id'])) {
     jsonResponse(['success' => false, 'error' => 'INVALID_JOB_TITLE', 'message' => 'Указанная должность не найдена.'], 422);
 }
 
 try {
-    $stmt = $connect->prepare('INSERT INTO employees (img_path, name, birth, job_title_id, description) VALUES (?, ?, ?, ?, ?)');
+    $stmt = db()->prepare('INSERT INTO employees (img_path, name, birth, job_title_id, description) VALUES (?, ?, ?, ?, ?)');
     $stmt->execute([
         '',
         $payload['name'],
@@ -38,7 +38,7 @@ try {
     jsonResponse([
         'success' => true,
         'message' => 'Сотрудник добавлен.',
-        'data' => ['id' => (int)$connect->lastInsertId()]
+        'data' => ['id' => (int)db()->lastInsertId()]
     ], 201);
 } catch (Throwable $e) {
     jsonResponse(['success' => false, 'error' => 'SERVER_ERROR', 'message' => 'Не удалось добавить сотрудника.'], 500);

@@ -14,7 +14,7 @@ if ($id < 1) {
     jsonResponse(['success' => false, 'error' => 'VALIDATION_ERROR', 'message' => 'Поле id обязательно и должно быть положительным числом.'], 422);
 }
 
-$employee = findEmployeeById($connect, $id);
+$employee = findEmployeeById(db(), $id);
 if (!$employee) {
     jsonResponse(['success' => false, 'error' => 'NOT_FOUND', 'message' => 'Сотрудник не найден.'], 404);
 }
@@ -41,7 +41,7 @@ if (!move_uploaded_file($file['tmp_name'], EMPLOYEE_PHOTOS_DIR . '/' . $fileName
 }
 
 try {
-    $stmt = $connect->prepare('UPDATE employees SET img_path = ? WHERE id = ?');
+    $stmt = db()->prepare('UPDATE employees SET img_path = ? WHERE id = ?');
     $stmt->execute([$fileName, $id]);
 } catch (Throwable $e) {
     deleteEmployeePhoto($fileName);

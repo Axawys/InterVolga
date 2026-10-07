@@ -1,12 +1,11 @@
 <?php
 
 require_once __DIR__ . '/../db.php';
-/** @var PDO $connect объявлена в db.php */
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
     $email = htmlspecialchars($_POST['email']);
     try {
-        $stmt = $connect->prepare("SELECT id FROM users WHERE email = :email");
+        $stmt = db()->prepare("SELECT id FROM users WHERE email = :email");
         $stmt->execute([':email' => $email]);
         $exists = $stmt->rowCount() > 0;
         header('Content-Type: application/json');

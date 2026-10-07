@@ -26,16 +26,16 @@ if ($validation['errors']) {
 }
 
 $payload = $validation['data'];
-if (!jobTitleExists($connect, $payload['job_title_id'])) {
+if (!jobTitleExists(db(), $payload['job_title_id'])) {
     jsonResponse(['success' => false, 'error' => 'INVALID_JOB_TITLE', 'message' => 'Указанная должность не найдена.'], 422);
 }
 
-if (!findEmployeeById($connect, $id)) {
+if (!findEmployeeById(db(), $id)) {
     jsonResponse(['success' => false, 'error' => 'NOT_FOUND', 'message' => 'Сотрудник не найден.'], 404);
 }
 
 try {
-    $stmt = $connect->prepare('UPDATE employees SET name = ?, birth = ?, job_title_id = ?, description = ? WHERE id = ?');
+    $stmt = db()->prepare('UPDATE employees SET name = ?, birth = ?, job_title_id = ?, description = ? WHERE id = ?');
     $stmt->execute([
         $payload['name'],
         $payload['birth'],

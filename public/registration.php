@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if(!filter_var($email,FILTER_VALIDATE_EMAIL)) $errors[]="Некорректный email.";
         
         // Проверка на существующий email
-        $checkEmail = $connect->prepare("SELECT id FROM users WHERE email = :email");
+        $checkEmail = db()->prepare("SELECT id FROM users WHERE email = :email");
         $checkEmail->execute([':email' => $email]);
         if($checkEmail->rowCount() > 0) {
             $errors[]="Эта почта уже используется";
@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $sql="INSERT INTO users (FIO,date,address,sex,interes,vk,blood,resus,email,password)
             VALUES (:FIO,:date,:address,:sex,:interes,:vk,:blood,:resus,:email,:password)";
-            $stmt=$connect->prepare($sql);
+            $stmt=db()->prepare($sql);
             $params=[
                 ':FIO'=>$FIO,':date'=>$date,':address'=>$address,':sex'=>$sex,
                 ':interes'=>$interes,':vk'=>$vk,':blood'=>$blood,':resus'=>$resus,
@@ -54,7 +54,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
     } catch(PDOException $e){ $errors[] = "Ошибка базы данных, попробуйте позже."; }
-    $connect=null;
 }
 ?>
 

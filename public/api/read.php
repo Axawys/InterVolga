@@ -18,7 +18,7 @@ try {
 
     jsonResponse([
         'success' => true,
-        'data' => getEmployees($connect, $filters)
+        'data' => getEmployees(db(), $filters)
     ]);
 } catch (Throwable $e) {
     jsonResponse(['success' => false, 'error' => 'SERVER_ERROR', 'message' => 'Не удалось получить список сотрудников.'], 500);

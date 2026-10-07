@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 try {
     jsonResponse([
         'success' => true,
-        'data' => getAllJobTitles($connect)
+        'data' => getAllJobTitles(db())
     ]);
 } catch (Throwable $e) {
     jsonResponse(['success' => false, 'error' => 'SERVER_ERROR', 'message' => 'Не удалось получить список должностей.'], 500);

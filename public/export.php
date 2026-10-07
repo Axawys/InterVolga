@@ -6,18 +6,18 @@ requireAdminAccess();
 $sqlDump = "-- Бэкап базы данных от " . date('d.m.Y H:i') . "\n\n";
 $sqlDump .= "SET NAMES utf8mb4;\n\n";
 
-$tables = $connect->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
+$tables = db()->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
 
 foreach ($tables as $table) {
     // Структура таблицы
-    $createTable = $connect->query("SHOW CREATE TABLE `$table`")->fetch(PDO::FETCH_ASSOC);
+    $createTable = db()->query("SHOW CREATE TABLE `$table`")->fetch(PDO::FETCH_ASSOC);
     $sqlDump .= "DROP TABLE IF EXISTS `$table`;\n";
     $sqlDump .= $createTable['Create Table'] . ";\n\n";
 
     // Данные таблицы
-    $rows = $connect->query("SELECT * FROM `$table`")->fetchAll(PDO::FETCH_ASSOC);
+    $rows = db()->query("SELECT * FROM `$table`")->fetchAll(PDO::FETCH_ASSOC);
     foreach ($rows as $row) {
-        $values = array_map(fn($value) => $value === null ? 'NULL' : $connect->quote($value), $row);
+        $values = array_map(fn($value) => $value === null ? 'NULL' : db()->quote($value), $row);
         $sqlDump .= "INSERT INTO `$table` VALUES (" . implode(', ', $values) . ");\n";
     }
     $sqlDump .= "\n";

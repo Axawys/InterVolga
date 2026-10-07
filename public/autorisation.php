@@ -8,7 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = $_POST['password'];
 
         $sql = "SELECT * FROM users WHERE email = :email";
-        $stmt = $connect->prepare($sql);
+        $stmt = db()->prepare($sql);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
 
@@ -25,7 +25,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } catch (PDOException $e) {
         $errorMessage = "Ошибка подключения: " . $e->getMessage();
     }
-    $connect = null;
 }
 ?>
 

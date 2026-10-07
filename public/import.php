@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['sql_file']) || $_FI
 
 try {
     $sql = file_get_contents($_FILES['sql_file']['tmp_name']);
-    $connect->exec($sql);
+    db()->exec($sql);
     header('Location: edit?backup=ok');
 } catch (PDOException $e) {
     header('Location: edit?backup=error');

@@ -3,6 +3,7 @@ require_once __DIR__ . '/../logic.php';
 session_start();
 
 $isLoggedIn = isset($_SESSION['user_id']);
+['filters' => $filters, 'employees' => $employees, 'job_titles' => $job_titles] = indexPageData($_GET);
 ?>
 
 <!DOCTYPE html>
@@ -55,25 +56,25 @@ $isLoggedIn = isset($_SESSION['user_id']);
         <form method="get" action="./" class="text-start mt-4">
             <div class="mb-3">
                 <label class="form-label">По году рождения:</label>
-                <input type="text" class="form-control" name="birth" placeholder="Введите год рождения" value="<?= htmlspecialchars($birth_filter) ?>">
+                <input type="text" class="form-control" name="birth" placeholder="Введите год рождения" value="<?= htmlspecialchars($filters['birth']) ?>">
             </div>
 
             <div class="mb-3">
                 <label class="form-label">По ФИО:</label>
-                <input type="text" class="form-control" name="name" placeholder="Введите ФИО" value="<?= htmlspecialchars($name_filter) ?>">
+                <input type="text" class="form-control" name="name" placeholder="Введите ФИО" value="<?= htmlspecialchars($filters['name']) ?>">
             </div>
 
             <div class="mb-3">
                 <label class="form-label">По личной характеристике:</label>
-                <input type="text" class="form-control" name="description" placeholder="Введите личную характеристику" value="<?= htmlspecialchars($description_filter) ?>">
+                <input type="text" class="form-control" name="description" placeholder="Введите личную характеристику" value="<?= htmlspecialchars($filters['description']) ?>">
             </div>
 
             <div class="mb-3">
                 <label class="form-label">По должности:</label>
                 <select name="job_title_id" class="form-select">
-                    <option value="" <?= ($job_title_filter == '' ? 'selected' : '') ?>>Все</option>
+                    <option value="" <?= ($filters['job_title_id'] == '' ? 'selected' : '') ?>>Все</option>
                     <?php foreach ($job_titles as $job): ?>
-                        <option value="<?= $job['id'] ?>" <?= ($job_title_filter == $job['id'] ? 'selected' : '') ?>>
+                        <option value="<?= $job['id'] ?>" <?= ($filters['job_title_id'] == $job['id'] ? 'selected' : '') ?>>
                             <?= htmlspecialchars($job['name']) ?>
                         </option>
                     <?php endforeach; ?>
