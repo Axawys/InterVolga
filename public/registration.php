@@ -1,96 +1,28 @@
 <?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/layout.php';
+
 $errors = [];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    require_once __DIR__ . '/../db.php';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $FIO = htmlspecialchars($_POST['FIO']);
-        $date = htmlspecialchars($_POST['date']);
-        $address = htmlspecialchars($_POST['address']);
-        $sex = htmlspecialchars($_POST['sex']);
-        $interes = htmlspecialchars($_POST['interes']);
-        $vk = htmlspecialchars($_POST['vk']);
-        $blood = htmlspecialchars($_POST['blood']);
-        $resus = htmlspecialchars($_POST['resus']);
-        $email = htmlspecialchars($_POST['email']);
-        $password = $_POST['password'];
-        $confirmPassword = $_POST['confirmPassword'];
-
-        if(empty($FIO)) {
-            $errors[] = "ФИО обязательно.";
+        ['errors' => $errors, 'data' => $data] = validateRegistration($_POST);
+        if ($errors === []) {
+            registerUser($data);
+            header('Location: autorisation');
+            exit;
         }
-        if(empty($date)) {
-            $errors[] = "Дата рождения обязательна.";
-        }
-        if(empty($address)) {
-            $errors[] = "Адрес обязателен.";
-        }
-        if(!in_array($sex, ['М','Ж'])) {
-            $errors[] = "Пол некорректен.";
-        }
-        if(empty($interes)) {
-            $errors[] = "Интересы обязательны.";
-        }
-        if(!empty($vk) && !filter_var($vk, FILTER_VALIDATE_URL)) {
-            $errors[] = "Некорректная ссылка VK.";
-        }
-        if(empty($blood)) {
-            $errors[] = "Группа крови обязательна.";
-        }
-        if(!in_array($resus, ['+','-'])) {
-            $errors[] = "Резус-фактор некорректен.";
-        }
-        if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = "Некорректный email.";
-        }
-
-        // Проверка на существующий email
-        $checkEmail = db()->prepare("SELECT id FROM users WHERE email = :email");
-        $checkEmail->execute([':email' => $email]);
-        if($checkEmail->rowCount() > 0) {
-            $errors[] = "Эта почта уже используется";
-        }
-
-        if(strlen($password) <= 6) {
-            $errors[] = "Пароль минимум 7 символов.";
-        }
-        if($password !== $confirmPassword) {
-            $errors[] = "Пароли не совпадают.";
-        }
-
-        if(empty($errors)){
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-            $sql = "INSERT INTO users (FIO,date,address,sex,interes,vk,blood,resus,email,password)
-            VALUES (:FIO,:date,:address,:sex,:interes,:vk,:blood,:resus,:email,:password)";
-            $stmt = db()->prepare($sql);
-            $params = [
-                ':FIO' => $FIO,':date' => $date,':address' => $address,':sex' => $sex,
-                ':interes' => $interes,':vk' => $vk,':blood' => $blood,':resus' => $resus,
-                ':email' => $email,':password' => $hashedPassword
-            ];
-            foreach($params as $k => $v) {
-                $stmt->bindParam($k, $params[$k]);
-            }
-            if($stmt->execute()) {
-                header("Location: autorisation");
-                exit;
-            }
-        }
-    } catch(PDOException $e){
-        $errors[] = "Ошибка базы данных, попробуйте позже.";
+    } catch (PDOException $e) {
+        $errors[] = 'Ошибка базы данных, попробуйте позже.';
     }
 }
-?>
 
-<!DOCTYPE html>
-<html lang="ru" data-bs-theme="dark">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="d-flex flex-column min-vh-100">
+pageHeader('Регистрация');
+?>
 <main class="flex-grow-1">
 <div class="container my-5">
 <div class="row justify-content-center">
@@ -98,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <div class="bg-body-tertiary rounded-3 shadow p-4">
 <h2 class="mb-4 text-center">Регистрация</h2>
 <?php foreach ($errors as $error): ?>
-    <div class="alert alert-danger"><?= $error ?></div>
+    <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
 <?php endforeach; ?>
 <form method="POST" id="regForm">
     <div class="form-group">
@@ -187,19 +119,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <small class="text-danger d-none">Пароли должны совпадать</small>
     </div>
 
-    
     <div class="mt-3 d-flex justify-content-between">
         <button type="submit" class="btn btn-primary" id="submitBtn">Зарегистрироваться</button>
-        <button type="button" class="btn btn-secondary" onclick="goHome()">Вернуться в главное меню</button>
+        <a href="/" class="btn btn-secondary"
+           onclick="return confirm('Все заполненные данные будут потеряны. Вернуться на главную?')">
+            Вернуться в главное меню
+        </a>
     </div>
-
-    <script>
-    function goHome() {
-        if(confirm("Все заполненные данные будут потеряны. Вы уверены, что хотите вернуться?")) {
-            window.location.href = '/';
-        }
-    }
-    </script>
 </form>
 
 </div>
@@ -207,184 +133,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 </div>
 </main>
-
-<?php require __DIR__ . '/../includes/footer.php'; ?>
-
-<script>
-const day = document.getElementById('day');
-const month = document.getElementById('month');
-const year = document.getElementById('year');
-const dobInput = document.getElementById('dob');
-const dobError = document.getElementById('dobError');
-const blood = document.getElementById('blood');
-const bloodError = document.getElementById('bloodError');
-const resus = document.getElementById('resus');
-const resusError = document.getElementById('resusError');
-const sex = document.getElementById('sex');
-const sexError = document.getElementById('sexError');
-const submitBtn = document.getElementById('submitBtn');
-const emailFormatError = document.getElementById('emailFormatError');
-const emailError = document.getElementById('emailError');
-const emailInput = document.getElementById('email');
-
-// Дата рождения
-function populateMonths() {
-    month.innerHTML = '<option value="">Месяц</option>';
-    for(let m=1;m<=12;m++){
-        const opt = document.createElement('option'); 
-        opt.value = opt.text = m<10?'0'+m:m;
-        month.appendChild(opt);
-    }
-}
-
-function populateYears() {
-    year.innerHTML = '<option value="">Год</option>';
-    const thisYear = new Date().getFullYear();
-    for(let y = thisYear; y>=1900; y--){
-        const opt = document.createElement('option'); 
-        opt.value = opt.text = y;
-        year.appendChild(opt);
-    }
-}
-
-function updateDays() {
-    const m = parseInt(month.value), y = parseInt(year.value);
-    let selectedDay = day.value;
-    let daysInMonth = (m && y) ? new Date(y,m,0).getDate() : 31;
-    day.innerHTML = '<option value="">День</option>';
-    for(let i=1;i<=daysInMonth;i++){
-        const opt = document.createElement('option'); 
-        opt.value = opt.text = i<10?'0'+i:i;
-        day.appendChild(opt);
-    }
-    if(selectedDay && selectedDay<=daysInMonth) day.value = selectedDay;
-}
-
-function validateDob() {
-    const d = day.value, m = month.value, y = year.value;
-    const valid = d && m && y;
-    dobInput.value = valid ? `${d}/${m}/${y}` : '';
-    dobError.classList.toggle('d-none', valid);
-    return valid;
-}
-
-function validateSelect(sel,error) {
-    const valid = sel.value !== '';
-    error.classList.toggle('d-none', valid);
-    sel.classList.toggle('is-invalid', !valid);
-    return valid;
-}
-
-function validateField(id, validator) {
-    const el = document.getElementById(id);
-    const val = el.value.trim();
-    const valid = validator(val);
-    el.classList.toggle('is-invalid', !valid);
-    if (el.nextElementSibling && id !== 'email') {
-        el.nextElementSibling.classList.toggle('d-none', valid);
-    }
-    return valid;
-}
-
-// Проверка уникальности email
-async function checkEmailUnique() {
-    const email = emailInput.value.trim();
-    
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return false;
-    }
-    
-    try {
-        const response = await fetch('check_email', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'email=' + encodeURIComponent(email)
-        });
-        
-        const data = await response.json();
-        
-        if (data.exists) {
-            emailError.textContent = 'эта почта уже используется';
-            emailError.classList.remove('d-none');
-            emailFormatError.classList.add('d-none');
-            emailInput.classList.add('is-invalid');
-            return false;
-        } else {
-            emailError.classList.add('d-none');
-            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                emailFormatError.classList.add('d-none');
-                emailInput.classList.remove('is-invalid');
-            }
-            return true;
-        }
-    } catch (error) {
-        console.error('Ошибка при проверке email:', error);
-        return true;
-    }
-}
-
-async function validateForm() {
-    const validDob = validateDob();
-    const validFIO = validateField('FIO', v=>v.length>0);
-    const validAddress = validateField('address', v=>v.length>0);
-    const validInteres = validateField('interes', v=>v.length>0);
-    const validVK = validateField('vk', v=>/^https?:\/\/.+$/.test(v));
-    
-    // Валидация email формата
-    const email = emailInput.value.trim();
-    const validEmailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    emailInput.classList.toggle('is-invalid', !validEmailFormat);
-    emailFormatError.classList.toggle('d-none', validEmailFormat);
-    
-    const validPassword = validateField('password', v=>v.length>=7);
-    const validConfirm = validateField('confirmPassword', v=>v===document.getElementById('password').value);
-    const validBlood = validateSelect(blood, bloodError);
-    const validResus = validateSelect(resus, resusError);
-    const validSex = validateSelect(sex, sexError);
-    
-    // Проверка уникальности email
-    let validEmailUnique = true;
-    if (validEmailFormat) {
-        validEmailUnique = await checkEmailUnique();
-    }
-    
-    submitBtn.disabled = !(validDob && validFIO && validAddress && validInteres &&
-                           validVK && validEmailFormat && validPassword && validConfirm &&
-                           validBlood && validResus && validSex && validEmailUnique);
-}
-
-// Инициализация
-populateMonths(); 
-populateYears(); 
-updateDays();
-
-// Слушатели изменений
-month.addEventListener('change', ()=>{ updateDays(); validateForm(); });
-year.addEventListener('change', ()=>{ updateDays(); validateForm(); });
-day.addEventListener('change', validateForm);
-blood.addEventListener('change', validateForm);
-resus.addEventListener('change', validateForm);
-sex.addEventListener('change', validateForm);
-
-// Слушатели для полей ввода
-document.getElementById('regForm').addEventListener('input', validateForm);
-
-// Специальный обработчик для email
-emailInput.addEventListener('blur', async function() {
-    await checkEmailUnique();
-    validateForm();
-});
-
-emailInput.addEventListener('input', function() {
-    // Скрываем ошибку уникальности при изменении email
-    emailError.classList.add('d-none');
-    validateForm();
-});
-
-// Запускаем валидацию при загрузке
-validateForm();
-</script>
-</body>
-</html>
+<?php pageFooter(['js/registration.js']); ?>

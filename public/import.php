@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../includes/helpers.php';
 requireAdminAccess();
@@ -15,9 +17,12 @@ if (
 
 try {
     $sql = file_get_contents($_FILES['sql_file']['tmp_name']);
+    if ($sql === false) {
+        throw new RuntimeException('Не удалось прочитать файл бэкапа');
+    }
     db()->exec($sql);
     header('Location: edit?backup=ok');
-} catch (PDOException $e) {
+} catch (PDOException | RuntimeException $e) {
     header('Location: edit?backup=error');
 }
 exit;

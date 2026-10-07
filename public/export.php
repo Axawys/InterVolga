@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../includes/helpers.php';
 requireAdminAccess();
@@ -18,7 +20,7 @@ foreach ($tables as $table) {
     // Данные таблицы
     $rows = db()->query("SELECT * FROM `$table`")->fetchAll(PDO::FETCH_ASSOC);
     foreach ($rows as $row) {
-        $values = array_map(fn($value) => $value === null ? 'NULL' : db()->quote($value), $row);
+        $values = array_map(fn($value) => $value === null ? 'NULL' : db()->quote((string)$value), $row);
         $sqlDump .= "INSERT INTO `$table` VALUES (" . implode(', ', $values) . ");\n";
     }
     $sqlDump .= "\n";

@@ -113,3 +113,127 @@ function requireAdminAccess(): void
         ], 401);
     }
 }
+
+// Вход в админку по паролю из ADMIN_PASSWORD_HASH_B64. Возвращает текст ошибки или '' при успехе.
+function loginAdmin(string $password): string
+{
+    $hashB64 = getenv('ADMIN_PASSWORD_HASH_B64');
+    $adminHash = $hashB64 ? base64_decode($hashB64, true) : false;
+
+    if (!$adminHash) {
+        return 'Не задан ADMIN_PASSWORD_HASH_B64';
+    }
+    if (!password_verify($password, $adminHash)) {
+        return 'Неверный пароль';
+    }
+
+    session_regenerate_id(true);
+    $_SESSION['edit_page_access'] = true;
+
+    return '';
+}
+
+// Вход пользователя по email и паролю. При успехе записывает пользователя в сессию.
+function loginUser(string $email, string $password): bool
+{
+    $stmt = db()->prepare('SELECT id, email, password FROM users WHERE email = ?');
+    $stmt->execute([$email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user || !password_verify($password, $user['password'])) {
+        return false;
+    }
+
+    session_regenerate_id(true);
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['email'] = $user['email'];
+
+    return true;
+}
+
+function emailExists(string $email): bool
+{
+    $stmt = db()->prepare('SELECT 1 FROM users WHERE email = ?');
+    $stmt->execute([$email]);
+
+    return $stmt->fetchColumn() !== false;
+}
+
+/**
+ * Проверка формы регистрации.
+ *
+ * @return array{errors: list<string>, data: array<string, string>}
+ */
+function validateRegistration(array $input): array
+{
+    $data = [];
+    foreach (['FIO', 'date', 'address', 'sex', 'interes', 'vk', 'blood', 'resus', 'email'] as $field) {
+        $data[$field] = normalizeString($input[$field] ?? '');
+    }
+    $password = (string)($input['password'] ?? '');
+    $confirmPassword = (string)($input['confirmPassword'] ?? '');
+
+    $errors = [];
+    if ($data['FIO'] === '') {
+        $errors[] = 'ФИО обязательно.';
+    }
+    if ($data['date'] === '') {
+        $errors[] = 'Дата рождения обязательна.';
+    }
+    if ($data['address'] === '') {
+        $errors[] = 'Адрес обязателен.';
+    }
+    if (!in_array($data['sex'], ['М', 'Ж'], true)) {
+        $errors[] = 'Пол некорректен.';
+    }
+    if ($data['interes'] === '') {
+        $errors[] = 'Интересы обязательны.';
+    }
+    if ($data['vk'] !== '' && !filter_var($data['vk'], FILTER_VALIDATE_URL)) {
+        $errors[] = 'Некорректная ссылка VK.';
+    }
+    if ($data['blood'] === '') {
+        $errors[] = 'Группа крови обязательна.';
+    }
+    if (!in_array($data['resus'], ['+', '-'], true)) {
+        $errors[] = 'Резус-фактор некорректен.';
+    }
+    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Некорректный email.';
+    } elseif (emailExists($data['email'])) {
+        $errors[] = 'Эта почта уже используется';
+    }
+    if (strlen($password) < 7) {
+        $errors[] = 'Пароль минимум 7 символов.';
+    }
+    if ($password !== $confirmPassword) {
+        $errors[] = 'Пароли не совпадают.';
+    }
+
+    $data['password'] = $password;
+
+    return ['errors' => $errors, 'data' => $data];
+}
+
+/**
+ * @param array<string, string> $data данные из validateRegistration()
+ */
+function registerUser(array $data): void
+{
+    $stmt = db()->prepare(
+        'INSERT INTO users (FIO, date, address, sex, interes, vk, blood, resus, email, password)
+         VALUES (:FIO, :date, :address, :sex, :interes, :vk, :blood, :resus, :email, :password)'
+    );
+    $stmt->execute([
+        ':FIO' => $data['FIO'],
+        ':date' => $data['date'],
+        ':address' => $data['address'],
+        ':sex' => $data['sex'],
+        ':interes' => $data['interes'],
+        ':vk' => $data['vk'],
+        ':blood' => $data['blood'],
+        ':resus' => $data['resus'],
+        ':email' => $data['email'],
+        ':password' => password_hash($data['password'], PASSWORD_DEFAULT),
+    ]);
+}

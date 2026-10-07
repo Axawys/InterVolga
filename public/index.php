@@ -1,24 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/employee_repository.php';
+require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../logic.php';
+
 session_start();
 
 $isLoggedIn = isset($_SESSION['user_id']);
 ['filters' => $filters, 'employees' => $employees, 'job_titles' => $job_titles] = indexPageData($_GET);
+
+pageHeader('Архитектурное бюро');
 ?>
-
-<!DOCTYPE html>
-<html lang="ru" data-bs-theme="dark">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="css/bootstrap.min.css" rel="stylesheet">
-<title>Архитектурное бюро</title>
-</head>
-<body class="d-flex flex-column min-vh-100">
-
 <main class="flex-grow-1">
 <div class="container my-5">
 <div class="row justify-content-center">
@@ -85,7 +81,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                     <?php foreach ($job_titles as $job): ?>
                         <?php $selected = $filters['job_title_id'] === (string)$job['id'] ? 'selected' : ''; ?>
                         <option value="<?= (int)$job['id'] ?>" <?= $selected ?>>
-                            <?= htmlspecialchars($job['name']) ?>
+                            <?= htmlspecialchars((string)$job['name']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -122,7 +118,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                         <tr>
                             <td>
                                 <?php
-                                $photo = $employee['img_path'] ?? '';
+                                $photo = (string)($employee['img_path'] ?? '');
                                 $hasPhoto = $photo !== '' && file_exists(__DIR__ . '/catalogue_images/' . $photo);
                                 ?>
                                 <?php if ($hasPhoto): ?>
@@ -134,10 +130,10 @@ $isLoggedIn = isset($_SESSION['user_id']);
                                     </span>
                                 <?php endif; ?>
                             </td>
-                            <td><?= htmlspecialchars($employee['name']) ?></td>
-                            <td><?= htmlspecialchars($employee['birth']) ?></td>
-                            <td><?= htmlspecialchars($employee['job_title_name'] ?? 'Не указана') ?></td>
-                            <td><?= htmlspecialchars($employee['description']) ?></td>
+                            <td><?= htmlspecialchars((string)$employee['name']) ?></td>
+                            <td><?= htmlspecialchars((string)$employee['birth']) ?></td>
+                            <td><?= htmlspecialchars((string)($employee['job_title_name'] ?? 'Не указана')) ?></td>
+                            <td><?= htmlspecialchars((string)$employee['description']) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -151,8 +147,4 @@ $isLoggedIn = isset($_SESSION['user_id']);
 </div>
 </div>
 </main>
-
-<?php require __DIR__ . '/../includes/footer.php'; ?>
-
-</body>
-</html>
+<?php pageFooter(); ?>

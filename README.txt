@@ -48,7 +48,11 @@
 Структура
     public/   - корень сайта (DocumentRoot Apache): страницы, api/, css/, js/, images/,
                 catalogue_images/. Снаружи доступно только содержимое этой папки.
-    includes/, db.php, logic.php - общий PHP-код, подключается из public/ через require.
+    includes/, db.php, logic.php - общий PHP-код, подключается из public/ через require:
+        helpers.php - вход, регистрация, проверка данных, JSON-ответы
+        employee_repository.php - запросы к сотрудникам и должностям
+        layout.php - pageHeader()/pageFooter(): общие <head> и подвал страниц
+    public/js/ - скрипты страниц (edit.js, registration.js)
     arch.sql, docker/ - база и окружение, через веб недоступны.
     Новые страницы и статические файлы класть в public/, всё служебное - вне её.
 

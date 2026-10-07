@@ -1,41 +1,29 @@
 <?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/layout.php';
+
 session_start();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    require_once __DIR__ . '/../db.php';
+$errorMessage = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $email = htmlspecialchars($_POST['email']);
-        $password = $_POST['password'];
-
-        $sql = "SELECT * FROM users WHERE email = :email";
-        $stmt = db()->prepare($sql);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['email'] = $user['email'];
-            header("Location: /");
-            exit();
-        } else {
-            $errorMessage = "Неправильный логин или пароль";
+        if (loginUser(normalizeString($_POST['email'] ?? ''), (string)($_POST['password'] ?? ''))) {
+            header('Location: /');
+            exit;
         }
+        $errorMessage = 'Неправильный логин или пароль';
     } catch (PDOException $e) {
-        $errorMessage = "Ошибка подключения: " . $e->getMessage();
+        $errorMessage = 'Ошибка базы данных, попробуйте позже.';
     }
 }
-?>
 
-<!DOCTYPE html>
-<html lang="ru" data-bs-theme="dark">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="d-flex flex-column min-vh-100">
+pageHeader('Авторизация');
+?>
 <main class="flex-grow-1">
 <div class="container my-5">
 <div class="row justify-content-center">
@@ -43,8 +31,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <div class="bg-body-tertiary rounded-3 shadow p-4">
     <h2 class="mb-4 text-center">Авторизация</h2>
 
-    <?php if (!empty($errorMessage)) : ?>
-        <div class="alert alert-danger"><?= $errorMessage ?></div>
+    <?php if ($errorMessage !== ''): ?>
+        <div class="alert alert-danger"><?= htmlspecialchars($errorMessage) ?></div>
     <?php endif; ?>
 
     <form method="POST">
@@ -61,29 +49,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="d-flex justify-content-between">
             <button type="submit" class="btn btn-primary">Войти</button>
-            <button type="button" class="btn btn-secondary" onclick="goHome()">Главная</button>
+            <a href="/" class="btn btn-secondary"
+               onclick="return confirm('Все введённые данные будут потеряны. Вернуться на главную?')">Главная</a>
         </div>
     </form>
 
     <p class="mt-3 text-center">
-        Нет аккаунта? 
+        Нет аккаунта?
         <a href="registration"
            class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Регистрация</a>
     </p>
 </div>
-
-<script>
-function goHome() {
-    if(confirm("Все введённые данные будут потеряны. Вы уверены, что хотите вернуться на главную?")) {
-        window.location.href = '/';
-    }
-}
-</script>
 </div>
 </div>
 </div>
 </main>
-
-<?php require __DIR__ . '/../includes/footer.php'; ?>
-</body>
-</html>
+<?php pageFooter(); ?>
