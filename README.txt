@@ -1,6 +1,10 @@
 Запуск
     docker compose up --build -d
 
+    Apache в контейнере работает с uid/gid 1000, чтобы записывать загруженные фото
+    в примонтированную папку. Если uid пользователя не 1000, собрать так:
+        docker compose build --build-arg UID=$(id -u) --build-arg GID=$(id -g)
+
 Адреса
     http://localhost:8080  - сайт
     http://localhost:8081  - Adminer (сервер: db, пользователь: user, пароль: password, база: appdb)
@@ -45,5 +49,5 @@
     public/   - корень сайта (DocumentRoot Apache): страницы, api/, css/, js/, images/,
                 catalogue_images/. Снаружи доступно только содержимое этой папки.
     includes/, db.php, logic.php - общий PHP-код, подключается из public/ через require.
-    arch.sql, migrations/, docker/ - база и окружение, через веб недоступны.
+    arch.sql, docker/ - база и окружение, через веб недоступны.
     Новые страницы и статические файлы класть в public/, всё служебное - вне её.
