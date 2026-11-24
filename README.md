@@ -25,8 +25,14 @@ docker compose build --build-arg UID=$(id -u) --build-arg GID=$(id -g)
 php -r 'echo base64_encode(password_hash("новый_пароль", PASSWORD_DEFAULT));'
 ```
 
-CRUD сотрудников: каждая операция в своём файле, отдельный JSON-запрос
-(видно в DevTools → Network → Fetch/XHR):
+Каталог на главной странице использует Vue 3 для фильтров и таблицы.
+Vue загружается локально из `public/js/vue.global.prod.js` без сборки фронтенда.
+Маршруты `api/read` и `api/get_job_titles` обслуживает Silex 2.3 через
+`public/catalogue.php`. Docker устанавливает PHP-зависимости из `composer.lock`.
+У Silex и его зависимостей Symfony 4 завершилась поддержка, а `composer audit`
+сообщает об известных уязвимостях.
+
+API сотрудников (запросы видны в DevTools → Network → Fetch/XHR):
 
 | Эндпоинт               | Метод | Назначение                                |
 |------------------------|-------|-------------------------------------------|
@@ -82,7 +88,7 @@ docker compose up --build -d
   - `helpers.php` — вход, регистрация, проверка данных, JSON-ответы
   - `employee_repository.php` — запросы к сотрудникам и должностям
   - `layout.php` — `pageHeader()`/`pageFooter()`: общие `<head>` и подвал страниц
-- `public/js/` — скрипты страниц (`edit.js`, `registration.js`)
+- `public/js/` — скрипты страниц (`catalogue.js`, `edit.js`, `registration.js`)
 - `arch.sql`, `docker/` — база и окружение, через веб недоступны.
 
 Новые страницы и статические файлы класть в `public/`, всё служебное — вне её.

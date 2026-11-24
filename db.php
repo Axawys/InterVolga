@@ -8,13 +8,9 @@ function db(): PDO
     static $connect = null;
 
     if ($connect === null) {
-        try {
-            $connect = new PDO('mysql:host=db;dbname=appdb;charset=utf8', 'user', 'password', [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            ]);
-        } catch (PDOException $e) {
-            die('Error: ' . $e->getMessage());
-        }
+        $connect = new PDO('mysql:host=db;dbname=appdb;charset=utf8', 'user', 'password', [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        ]);
     }
 
     return $connect;

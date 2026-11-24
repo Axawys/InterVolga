@@ -2,27 +2,13 @@
 
 declare(strict_types=1);
 
-/**
- * Данные для главной страницы: фильтры из запроса, отфильтрованные сотрудники и список должностей.
- *
- * @return array{
- *     filters: array{birth: string, name: string, description: string, job_title_id: string},
- *     employees: array,
- *     job_titles: array
- * }
- */
-function indexPageData(array $query): array
+function employeeFilters(array $query): array
 {
-    $filters = [
-        'birth' => normalizeString($query['birth'] ?? ''),
-        'name' => normalizeString($query['name'] ?? ''),
-        'description' => normalizeString($query['description'] ?? ''),
-        'job_title_id' => normalizeString($query['job_title_id'] ?? ''),
-    ];
+    $filters = [];
+    foreach (['birth', 'name', 'description', 'job_title_id'] as $name) {
+        $value = $query[$name] ?? '';
+        $filters[$name] = is_string($value) ? normalizeString($value) : '';
+    }
 
-    return [
-        'filters' => $filters,
-        'employees' => getEmployees(db(), $filters),
-        'job_titles' => getAllJobTitles(db()),
-    ];
+    return $filters;
 }

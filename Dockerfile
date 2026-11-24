@@ -1,6 +1,15 @@
+FROM composer:2 AS dependencies
+
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --no-progress --prefer-dist
+
 FROM php:8.2-apache
 
 RUN docker-php-ext-install pdo pdo_mysql
+
+COPY --from=dependencies /app/vendor /opt/intervolga/vendor
+ENV COMPOSER_AUTOLOAD=/opt/intervolga/vendor/autoload.php
 
 COPY docker/php.ini /usr/local/etc/php/conf.d/app.ini
 

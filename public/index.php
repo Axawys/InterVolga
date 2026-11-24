@@ -2,16 +2,11 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../db.php';
-require_once __DIR__ . '/../includes/helpers.php';
-require_once __DIR__ . '/../includes/employee_repository.php';
 require_once __DIR__ . '/../includes/layout.php';
-require_once __DIR__ . '/../logic.php';
 
 session_start();
 
 $isLoggedIn = isset($_SESSION['user_id']);
-['filters' => $filters, 'employees' => $employees, 'job_titles' => $job_titles] = indexPageData($_GET);
 
 pageHeader('Архитектурное бюро');
 ?>
@@ -53,98 +48,78 @@ pageHeader('Архитектурное бюро');
             </div>
         </div>
 
-        <h4 class="text-center">Фильтры</h4>
-        <form method="get" action="./" class="text-start mt-4">
-            <div class="mb-3">
-                <label class="form-label">По году рождения:</label>
-                <input type="text" class="form-control" name="birth" placeholder="Введите год рождения"
-                       value="<?= htmlspecialchars($filters['birth']) ?>">
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">По ФИО:</label>
-                <input type="text" class="form-control" name="name" placeholder="Введите ФИО"
-                       value="<?= htmlspecialchars($filters['name']) ?>">
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">По личной характеристике:</label>
-                <input type="text" class="form-control" name="description"
-                       placeholder="Введите личную характеристику"
-                       value="<?= htmlspecialchars($filters['description']) ?>">
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">По должности:</label>
-                <select name="job_title_id" class="form-select">
-                    <option value="" <?= $filters['job_title_id'] === '' ? 'selected' : '' ?>>Все</option>
-                    <?php foreach ($job_titles as $job): ?>
-                        <?php $selected = $filters['job_title_id'] === (string)$job['id'] ? 'selected' : ''; ?>
-                        <option value="<?= (int)$job['id'] ?>" <?= $selected ?>>
-                            <?= htmlspecialchars((string)$job['name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary me-2">Применить фильтр</button>
-                <a href="./" class="btn btn-secondary">Очистить</a>
-            </div>
-        </form>
     </div>
 
-    <!-- Таблица сотрудников -->
-    <div class="bg-body-tertiary rounded-3 shadow p-4 mt-4">
-        <h4 class="text-center">Сотрудники</h4>
-        <?php if (empty($employees)): ?>
-            <div class="alert alert-info text-center">
+    <div id="catalogue">
+        <p class="alert alert-info mt-4" role="status">Загрузка каталога…</p>
+    </div>
+    <noscript><p class="alert alert-warning mt-4">Для просмотра каталога включите JavaScript.</p></noscript>
+
+    <template id="catalogue-template">
+        <div class="bg-body-tertiary rounded-3 shadow p-4 mt-4">
+            <h4 class="text-center">Фильтры</h4>
+            <form class="mt-4" @submit.prevent="applyFilters">
+                <div v-for="field in fields" :key="field.name" class="mb-3">
+                    <label :for="field.name" class="form-label">{{ field.label }}</label>
+                    <input :id="field.name" :name="field.name" :placeholder="field.placeholder"
+                           v-model="filters[field.name]" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="job_title_id" class="form-label">По должности</label>
+                    <select id="job_title_id" name="job_title_id" v-model="filters.job_title_id" class="form-select">
+                        <option value="">Все</option>
+                        <option v-for="job in jobTitles" :key="job.id" :value="String(job.id)">{{ job.name }}</option>
+                    </select>
+                    <p v-if="jobTitlesError" class="text-warning mt-2" role="alert">{{ jobTitlesError }}</p>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary me-2">Применить фильтр</button>
+                    <button type="button" class="btn btn-secondary" @click="clearFilters">Очистить</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-body-tertiary rounded-3 shadow p-4 mt-4" :aria-busy="loading">
+            <h4 class="text-center">Сотрудники</h4>
+            <p v-if="loading" class="text-center" role="status">Загрузка…</p>
+            <p v-else-if="error" class="alert alert-danger" role="alert">{{ error }}</p>
+            <p v-else-if="!employees.length" class="alert alert-info text-center">
                 Нет сотрудников, соответствующих критериям фильтра
-            </div>
-        <?php else: ?>
-            <div class="table-responsive">
-            <table class="table table-striped align-middle text-center mt-3 mb-0">
-                <thead>
-                    <tr>
-                        <th scope="col">Фото</th>
-                        <th scope="col">ФИО</th>
-                        <th scope="col">Год рождения</th>
-                        <th scope="col">Должность</th>
-                        <th scope="col">Личная характеристика</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($employees as $employee): ?>
+            </p>
+            <div v-else class="table-responsive">
+                <table class="table table-striped align-middle text-center mt-3 mb-0">
+                    <thead>
                         <tr>
-                            <td>
-                                <?php
-                                $photo = (string)($employee['img_path'] ?? '');
-                                $hasPhoto = $photo !== '' && file_exists(__DIR__ . '/catalogue_images/' . $photo);
-                                ?>
-                                <?php if ($hasPhoto): ?>
-                                    <img src="catalogue_images/<?= htmlspecialchars($photo) ?>" alt="Фото"
-                                         width="100" height="100" class="rounded object-fit-cover">
-                                <?php else: ?>
-                                    <span class="d-inline-block bg-secondary rounded px-2 py-4 small">
-                                        Нет фото
-                                    </span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars((string)$employee['name']) ?></td>
-                            <td><?= htmlspecialchars((string)$employee['birth']) ?></td>
-                            <td><?= htmlspecialchars((string)($employee['job_title_name'] ?? 'Не указана')) ?></td>
-                            <td><?= htmlspecialchars((string)$employee['description']) ?></td>
+                            <th scope="col">Фото</th>
+                            <th scope="col">ФИО</th>
+                            <th scope="col">Год рождения</th>
+                            <th scope="col">Должность</th>
+                            <th scope="col">Личная характеристика</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <tr v-for="employee in employees" :key="employee.id">
+                            <td>
+                                <img v-if="employee.img_path && !employee.photoUnavailable"
+                                     :src="'catalogue_images/' + encodeURIComponent(employee.img_path)"
+                                     @error="employee.photoUnavailable = true" alt="Фото"
+                                     width="100" height="100" class="rounded object-fit-cover">
+                                <span v-else class="d-inline-block bg-secondary rounded px-2 py-4 small">Нет фото</span>
+                            </td>
+                            <td>{{ employee.name }}</td>
+                            <td>{{ employee.birth }}</td>
+                            <td>{{ employee.job_title_name ?? 'Не указана' }}</td>
+                            <td>{{ employee.description }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-        <?php endif; ?>
-    </div>
+        </div>
+    </template>
 <?php endif; ?>
 
 </div>
 </div>
 </div>
 </main>
-<?php pageFooter(); ?>
+<?php pageFooter($isLoggedIn ? ['js/vue.global.prod.js', 'js/catalogue.js'] : []); ?>
